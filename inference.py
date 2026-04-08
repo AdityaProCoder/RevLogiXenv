@@ -18,7 +18,7 @@ HF_TOKEN = os.getenv("HF_TOKEN")
 if not HF_TOKEN:
     raise ValueError("HF_TOKEN environment variable is required")
 
-TASK_NAME = os.getenv("TASK_NAME", "hard")
+TASKS = os.getenv("TASKS", "easy,medium,hard")
 BENCHMARK = os.getenv("BENCHMARK", "revlogixenv_v0")
 
 # Backwards-compatible label retained by older evaluators (if they hardcode it).
@@ -205,7 +205,9 @@ def run_episode(client: OpenAI, task_name: str) -> tuple[bool, int, float, list[
 
 def main() -> None:
     client = OpenAI(base_url=API_BASE_URL, api_key=HF_TOKEN)
-    run_episode(client, TASK_NAME)
+    task_names = [t.strip() for t in TASKS.split(",") if t.strip()]
+    for task_name in task_names:
+        run_episode(client, task_name)
 
 
 if __name__ == "__main__":
