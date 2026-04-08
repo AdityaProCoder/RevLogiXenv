@@ -1,0 +1,123 @@
+spec_version: 1
+name: autonomous_returns_v0
+version: 0.2.0
+description: OpenEnv-compatible reverse-logistics environment for e-commerce returns triage
+type: space
+runtime: fastapi
+app: server.app:app
+port: 8000
+
+metadata:
+  domain: reverse_logistics
+  difficulty_levels:
+    - easy
+    - medium
+    - hard
+  tags:
+    - openenv
+    - reinforcement-learning
+    - logistics
+    - fraud-detection
+    - decision-making
+
+tasks:
+  easy:
+    description: "Moderate decision complexity — corresponds to previous medium difficulty"
+    num_items: 20
+    fraud_enabled: false
+    noise_level: medium
+    delay_type: fixed_3
+    scoring:
+      type: margin
+      range: [0.0, 1.0]
+
+  medium:
+    description: "High uncertainty — corresponds to previous hard difficulty"
+    num_items: 30
+    fraud_enabled: true
+    noise_level: hard
+    delay_type: variable
+    scoring:
+      type: composite
+      range: [0.0, 1.0]
+      weights:
+        margin: 0.6
+        fraud_f1: 0.4
+
+  hard:
+    description: "Extreme uncertainty + adversarial noise — new extra-hard difficulty"
+    num_items: 40
+    fraud_enabled: true
+    noise_level: extra_hard
+    delay_type: variable
+    scoring:
+      type: composite
+      range: [0.0, 1.0]
+      weights:
+        margin: 0.6
+        fraud_f1: 0.4
+
+  _legacy_easy:
+    description: "Original easy config (preserved for backward compatibility)"
+    num_items: 10
+    fraud_enabled: false
+    noise_level: easy
+    delay_type: immediate
+    scoring:
+      type: margin
+      range: [0.0, 1.0]
+
+action_space:
+  type: structured
+  model: ReturnsAction
+  fields:
+    action:
+      type: enum
+      values:
+        - resell_full
+        - resell_discount_15
+        - resell_discount_30
+        - resell_discount_50
+        - refurbish
+        - dispose
+        - flag_fraud
+        - inspect
+        - wait
+
+observation_space:
+  type: structured
+  model: ReturnsObservation
+  fields:
+    - current_item
+    - remaining_items
+    - pending_resolution_count
+    - running_ledger
+    - last_three_resolutions
+    - reward_detail
+    - done
+    - reward
+    - metadata
+
+state_space:
+  type: structured
+  model: ReturnsState
+  fields:
+    - episode_id
+    - step_count
+    - task
+    - episode_clock
+    - total_ledger
+    - item_queue_size
+    - pending_queue_size
+    - resolution_history_size
+    - total_processed
+    - total_flagged_fraud
+    - metadata
+
+reward:
+  type: shaped
+  model: Reward
+  range: [0.0, 1.0]
+  notes:
+    - Per-step reward is shaped from raw economics and bounded to [0, 1].
+    - Hard-task final grading combines margin and fraud F1.

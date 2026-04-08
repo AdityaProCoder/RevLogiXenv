@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autonomous-returns-v0"
+version = "0.2.0"
+description = "AutonomousReturns-v0: OpenEnv-compatible reverse-logistics environment"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "openenv-core[core]>=0.2.2",
+    "fastapi>=0.115.0",
+    "gradio>=6.0.0",
+    "pydantic>=2.0.0",
+    "uvicorn>=0.24.0",
+    "numpy>=1.20",
+    "requests>=2.31.0",
+    "python-dotenv>=1.0.0",
+    "google-cloud-aiplatform>=1.145.0",
+]
+
+[project.optional-dependencies]
+openai = ["openai>=1.0"]
+anthropic = ["anthropic>=0.18"]
+vertex = ["google-cloud-aiplatform>=1.145.0"]
+all = ["openai>=1.0", "anthropic>=0.18", "google-cloud-aiplatform>=1.145.0"]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[project.scripts]
+server = "autonomous_returns_v0.server.app:main"
+run-server = "run_server:main"
+baseline = "run_baseline:main"
+
+[tool.setuptools]
+include-package-data = true
+packages = ["autonomous_returns_v0", "autonomous_returns_v0.server"]
+py-modules = ["run_baseline", "run_server"]
