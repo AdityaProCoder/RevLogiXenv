@@ -1,3 +1,17 @@
+---
+title: RevLogiXenv
+emoji: "📦"
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 7860
+tags:
+  - openenv
+  - reinforcement-learning
+  - reverse-logistics
+  - fraud-detection
+---
+
 # RevLogiXenv
 
 Reverse logistics is one of the most expensive and least optimized parts of e-commerce.
