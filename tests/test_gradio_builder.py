@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-import gradio as gr
+import pytest
 from openenv.core.env_server.types import EnvironmentMetadata
 
-from autonomous_returns_v0.server.gradio_builder import gradio_builder
+gr = pytest.importorskip("gradio")
+
+from server.gradio_builder import gradio_builder
 
 
 class _DummyEpisodeState:

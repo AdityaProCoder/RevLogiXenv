@@ -5,7 +5,7 @@ Features:
 - OpenEnv-compatible typed actions (`ReturnsAction`)
 - Robust handling of delayed-reward tail steps (`WAIT`)
 - Reproducible benchmark runner across easy/medium/hard tasks
-- OpenAI/Anthropic/Vertex AI model support with env-var credentials
+- OpenAI/Vertex AI model support with env-var credentials
 """
 
 from __future__ import annotations
@@ -97,21 +97,6 @@ class BaselineAgent:
             if not self.model:
                 self.model = os.environ.get("MODEL_NAME", "gpt-4o-mini")
 
-        elif self.provider == "anthropic":
-            try:
-                anthropic_mod = import_module("anthropic")
-                Anthropic = getattr(anthropic_mod, "Anthropic")
-            except Exception as exc:
-                raise ImportError(
-                    "anthropic package required. Install with: pip install anthropic"
-                ) from exc
-
-            api_key = os.environ.get("ANTHROPIC_API_KEY")
-            if not api_key:
-                raise ValueError("ANTHROPIC_API_KEY environment variable not set")
-            self.client = Anthropic(api_key=api_key)
-            if not self.model:
-                self.model = "claude-3-5-haiku-20241022"
         elif self.provider == "google":
             project_id = os.environ.get("VERTEX_PROJECT_ID")
             if not project_id:
@@ -121,7 +106,7 @@ class BaselineAgent:
             if not self.model:
                 self.model = "gemini-1.5-pro"
         else:
-            raise ValueError("Unknown provider. Use 'openai', 'anthropic', or 'google'.")
+            raise ValueError("Unknown provider. Use 'openai' or 'google'.")
 
     def _call_llm(self, prompt: str) -> str:
         system_msg = LLM_SYSTEM_PROMPT
@@ -138,15 +123,6 @@ class BaselineAgent:
             )
             text = response.choices[0].message.content or ""
             return text.strip()
-
-        if self.provider == "anthropic":
-            response = self.client.messages.create(
-                model=self.model,
-                max_tokens=self.config.max_tokens,
-                system=system_msg,
-                messages=[{"role": "user", "content": prompt}],
-            )
-            return response.content[0].text.strip()
 
         init(project=self._vertex_project, location=self._vertex_location)
         model = GenerativeModel(
@@ -318,17 +294,6 @@ def run_openai_baseline(
 ) -> dict:
     agent = BaselineAgent(BaselineRunConfig(provider="openai", model=model))
     return agent.run_benchmark(seeds=seeds, verbose=verbose)
-
-
-def run_anthropic_baseline(
-    model: str = "claude-3-5-haiku-20241022",
-    seeds: Iterable[int] = (42,),
-    verbose: bool = False,
-) -> dict:
-    agent = BaselineAgent(BaselineRunConfig(provider="anthropic", model=model))
-    return agent.run_benchmark(seeds=seeds, verbose=verbose)
-
-
 if __name__ == "__main__":
     result = run_openai_baseline(verbose=True)
     print(result)

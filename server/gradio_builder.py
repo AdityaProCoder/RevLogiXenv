@@ -20,9 +20,9 @@ from typing import Any
 
 import gradio as gr
 
-from ..baseline import BaselineAgent, BaselineRunConfig
-from ..models import DispositionAction, ReturnsObservation
-from ..policies import HeuristicPolicy
+from autonomous_returns_v0.baseline import BaselineAgent, BaselineRunConfig
+from autonomous_returns_v0.models import DispositionAction, ReturnsObservation
+from autonomous_returns_v0.policies import HeuristicPolicy
 
 
 def _build_header(task: str, ledger: float, pending_count: int) -> str:
@@ -478,15 +478,15 @@ def gradio_builder(
             return await _render_ui(web_manager, False)
         
         async def on_action_discount_15():
-            await web_manager.step_environment({"action": "discount_15"})
+            await web_manager.step_environment({"action": "resell_discount_15"})
             return await _render_ui(web_manager, False)
         
         async def on_action_discount_30():
-            await web_manager.step_environment({"action": "discount_30"})
+            await web_manager.step_environment({"action": "resell_discount_30"})
             return await _render_ui(web_manager, False)
         
         async def on_action_discount_50():
-            await web_manager.step_environment({"action": "discount_50"})
+            await web_manager.step_environment({"action": "resell_discount_50"})
             return await _render_ui(web_manager, False)
         
         async def on_action_refurbish():
@@ -535,14 +535,12 @@ def gradio_builder(
                 provider = str(provider).strip().lower()
                 if provider == "openai" and not os.getenv("OPENAI_API_KEY"):
                     return await _render_ui(web_manager, reveal)
-                if provider == "anthropic" and not os.getenv("ANTHROPIC_API_KEY"):
-                    return await _render_ui(web_manager, reveal)
                 if provider == "google" and not os.getenv("VERTEX_PROJECT_ID"):
                     return await _render_ui(web_manager, reveal)
                 
                 resolved_model = (model or "").strip() or (
                     "gpt-4o-mini" if provider == "openai" else (
-                        "claude-3-5-haaku-20241022" if provider == "anthropic" else "gemini-2.0-flash"
+                        "gemini-2.0-flash"
                     )
                 )
                 config = BaselineRunConfig(provider=provider, model=resolved_model, temperature=float(temp))

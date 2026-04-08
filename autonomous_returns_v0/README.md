@@ -137,7 +137,8 @@ Optional:
 
 ```bash
 pip install ".[openai]"
-pip install ".[anthropic]"
+pip install ".[vertex]"
+pip install ".[web]"
 pip install ".[all]"
 ```
 
@@ -164,7 +165,7 @@ uv run run-server
 Runtime contract validation:
 
 ```bash
-uvicorn autonomous_returns_v0.server.app:app --host 127.0.0.1 --port 8000
+uvicorn server.app:app --host 127.0.0.1 --port 8000
 openenv validate --url http://127.0.0.1:8000
 ```
 
@@ -220,10 +221,10 @@ Deterministic local baseline (this branch, current implementation):
 
 ## Optional LLM Baseline
 
-OpenAI/Anthropic baseline runner is available but non-deterministic over time:
+OpenAI/Google baseline runner is available but non-deterministic over time:
 
 - `OPENAI_API_KEY`
-- `ANTHROPIC_API_KEY`
+- `VERTEX_PROJECT_ID`
 
 Example:
 

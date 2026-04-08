@@ -32,4 +32,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
   CMD curl -fsS http://localhost:8000/health || exit 1
 
 # OpenEnv-compatible FastAPI server
-CMD ["uvicorn", "autonomous_returns_v0.server.app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "server.app:app", "--host", "0.0.0.0", "--port", "8000"]

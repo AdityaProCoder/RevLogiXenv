@@ -28,15 +28,13 @@ def _parse_int_csv(value: str) -> list[int]:
 
 
 def _auto_detect_provider() -> str:
-    """Auto-detect LLM provider based on available API keys. Priority: openai > anthropic > google."""
+    """Auto-detect LLM provider based on available API keys. Priority: openai > google."""
     if os.getenv("OPENAI_API_KEY"):
         return "openai"
-    if os.getenv("ANTHROPIC_API_KEY"):
-        return "anthropic"
     if os.getenv("GEMINI_API_KEY"):
         return "google"
     raise ValueError(
-        "No LLM API key found. Set OPENAI_API_KEY, ANTHROPIC_API_KEY, or GEMINI_API_KEY in .env"
+        "No LLM API key found. Set OPENAI_API_KEY or GEMINI_API_KEY in .env"
     )
 
 
@@ -62,14 +60,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
             "AutonomousReturns-v0 baseline CLI. "
-            "Supports deterministic local baseline and optional LLM baseline."
+            "Supports deterministic local baseline and optional LLM baseline (OpenAI/Google)."
         )
     )
     parser.add_argument(
         "--mode",
         choices=("local", "llm"),
         default="local",
-        help="Execution mode: local (deterministic) or llm (auto/OpenAI/Anthropic/Google).",
+        help="Execution mode: local (deterministic) or llm (auto/OpenAI/Google).",
     )
     parser.add_argument(
         "--tasks",
@@ -83,7 +81,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--provider",
-        choices=("auto", "openai", "anthropic", "google"),
+        choices=("auto", "openai", "google"),
         default="auto",
         help="LLM provider (used only in --mode llm). Use 'auto' to detect from API keys.",
     )

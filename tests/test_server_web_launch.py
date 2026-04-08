@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from autonomous_returns_v0.server.app import build_app
+from server.app import build_app
 
 
 def test_build_app_returns_fastapi_instance() -> None:

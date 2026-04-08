@@ -1,4 +1,4 @@
-"""Single-command launcher for local OpenEnv + Gradio Web UI."""
+"""Single-command launcher for local OpenEnv API + optional web UI."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ def main() -> None:
     os.environ.setdefault("ENV_README_PATH", os.path.abspath(os.path.join(os.path.dirname(__file__), "README.md")))
     port = int(os.getenv("PORT", "8000"))
 
-    app_module = import_module("autonomous_returns_v0.server.app")
+    app_module = import_module("server.app")
     app = getattr(app_module, "build_app")()
 
     print(f"Web UI: http://localhost:{port}/web/")

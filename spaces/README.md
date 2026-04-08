@@ -46,7 +46,7 @@ The project includes an OpenEnv manifest at `openenv.yaml` with:
 
 - `spec_version: 1`
 - runtime: `fastapi`
-- app: `autonomous_returns_v0.server.app:app`
+- app: `server.app:app`
 - typed action/observation/state model references
 - task definitions and scoring metadata
 
@@ -58,7 +58,7 @@ From the project root (`returnenv/autonomous_returns_v0`):
    - `pip install .`
 
 2. Run the server:
-   - `uvicorn autonomous_returns_v0.server.app:app --host 0.0.0.0 --port 8000`
+   - `uvicorn server.app:app --host 0.0.0.0 --port 8000`
 
 3. Health check:
    - `GET /health`
@@ -67,7 +67,7 @@ From the project root (`returnenv/autonomous_returns_v0`):
 
 This Space uses the Dockerfile in `spaces/Dockerfile` and launches:
 
-- `uvicorn autonomous_returns_v0.server.app:app --host 0.0.0.0 --port 7860`
+- `uvicorn server.app:app --host 0.0.0.0 --port 7860`
 
 The container exposes and serves on port `7860`, matching Hugging Face Space configuration.
 `ENABLE_WEB_INTERFACE=true` is enabled for this Space runtime, so both:
@@ -100,7 +100,7 @@ It supports async usage and sync wrapper usage through the OpenEnv client base.
 Two baselines are included:
 
 1. `BaselineAgent` (LLM-based)
-   - Supports OpenAI (`OPENAI_API_KEY`) and Anthropic (`ANTHROPIC_API_KEY`).
+   - Supports OpenAI (`OPENAI_API_KEY`) and Google Vertex (`VERTEX_PROJECT_ID`).
 
 2. `LocalBaselineRunner` (deterministic, no external API)
    - Reproducible task scoring over fixed seeds.
@@ -111,12 +111,12 @@ The custom Gradio tab (`Custom`) includes:
 
 - Manual action controls for all 8 disposition actions
 - Heuristic autoplay (deterministic, no API key required)
-- LLM autoplay (`openai` or `anthropic`) using runtime env vars only
+- LLM autoplay (`openai` or `google`) using runtime env vars only
 
 LLM autoplay requires:
 
 - `OPENAI_API_KEY` for OpenAI mode
-- `ANTHROPIC_API_KEY` for Anthropic mode
+- `VERTEX_PROJECT_ID` for Google mode
 
 No API keys are entered in the UI.
 
