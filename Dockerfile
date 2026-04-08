@@ -26,7 +26,7 @@ COPY pyproject.toml uv.lock README.md ./
 COPY RevLogiXenv_v0 ./RevLogiXenv_v0
 COPY server ./server
 COPY openenv.yaml ./openenv.yaml
-COPY run_baseline.py run_server.py ./
+COPY run_baseline.py run_server.py inference.py ./
 
 # Install dependencies and project exactly from lockfile
 RUN uv sync --frozen --no-dev
