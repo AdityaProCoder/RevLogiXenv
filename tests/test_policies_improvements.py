@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from autonomous_returns_v0 import (
+from RevLogiXenv_v0 import (
     AutonomousReturnsEnv,
     DispositionAction,
     HeuristicPolicy,
+    PolicyConfig,
     ReturnsAction,
 )
 
@@ -95,7 +96,6 @@ def test_heuristic_fraud_flag_requires_multiple_signals():
 
 def test_policy_config_has_no_fraud_score_threshold():
     """PolicyConfig should not have fraud_score_threshold (it was inverted)."""
-    from autonomous_returns_v0 import PolicyConfig
     config = PolicyConfig()
     assert not hasattr(config, 'fraud_score_threshold'), (
         "fraud_score_threshold should be removed - it causes false positives"
@@ -104,7 +104,6 @@ def test_policy_config_has_no_fraud_score_threshold():
 
 def test_policy_config_inspect_thresholds():
     """PolicyConfig should have explicit INSPECT thresholds."""
-    from autonomous_returns_v0 import PolicyConfig
     config = PolicyConfig()
     assert hasattr(config, 'inspect_score_low')
     assert hasattr(config, 'inspect_score_high')

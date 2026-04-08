@@ -6,8 +6,8 @@ import os
 import pytest
 from unittest.mock import MagicMock, patch
 
-from autonomous_returns_v0 import DispositionAction, ReturnsAction
-from autonomous_returns_v0.baseline import BaselineAgent, BaselineRunConfig
+from RevLogiXenv_v0 import DispositionAction, ReturnsAction
+from RevLogiXenv_v0.baseline import BaselineAgent, BaselineRunConfig
 
 
 class MockObservation:

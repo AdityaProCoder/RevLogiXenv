@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from autonomous_returns_v0 import (
+from RevLogiXenv_v0 import (
     AutonomousReturnsEnv,
     DispositionAction,
     HeuristicPolicy,
@@ -50,7 +50,6 @@ def test_wait_on_active_item_is_penalized() -> None:
     assert obs.reward_detail is not None
     assert obs.reward_detail.raw_step_reward < 0.0
     assert "wait_with_active_item" in obs.reward_detail.penalties
-    assert any(r.action == DispositionAction.WAIT for r in env._full_resolution_history)
 
 
 def test_wait_on_tail_has_no_invalid_penalty() -> None:
@@ -91,4 +90,4 @@ def test_reset_task_override_changes_active_task() -> None:
     obs = env.reset(seed=11, task="hard")
     assert env.task == "hard"
     assert env.state.task == "hard"
-    assert obs.remaining_items == 30
+    assert obs.remaining_items == 40

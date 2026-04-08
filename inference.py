@@ -1,4 +1,4 @@
-"""Hackathon-compliant inference script for AutonomousReturns-v0."""
+"""Hackathon-compliant inference script for RevLogiXenv."""
 from __future__ import annotations
 
 import os
@@ -7,8 +7,8 @@ import re
 from dotenv import load_dotenv
 from openai import OpenAI
 
-from autonomous_returns_v0 import AutonomousReturnsEnv
-from autonomous_returns_v0.models import DispositionAction, ReturnsAction, ReturnsObservation
+from RevLogiXenv_v0 import AutonomousReturnsEnv
+from RevLogiXenv_v0.models import DispositionAction, ReturnsAction, ReturnsObservation
 
 load_dotenv()
 
@@ -19,7 +19,10 @@ if not HF_TOKEN:
     raise ValueError("HF_TOKEN environment variable is required")
 
 TASK_NAME = os.getenv("TASK_NAME", "hard")
-BENCHMARK = "autonomous_returns_v0"
+BENCHMARK = os.getenv("BENCHMARK", "revlogixenv_v0")
+
+# Backwards-compatible label retained by older evaluators (if they hardcode it).
+LEGACY_BENCHMARK_NAME = os.getenv("LEGACY_BENCHMARK_NAME", "revlogixenv_v0")
 MAX_STEPS = 100
 MAX_TOTAL_REWARD = 1.0
 SUCCESS_SCORE_THRESHOLD = 0.5

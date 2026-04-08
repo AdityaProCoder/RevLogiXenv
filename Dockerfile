@@ -1,4 +1,4 @@
-# OpenEnv/FastAPI runtime image for AutonomousReturns-v0
+# OpenEnv/FastAPI runtime image for RevLogiXenv
 FROM python:3.12-slim
 
 WORKDIR /app
@@ -23,7 +23,7 @@ RUN pip install --upgrade pip setuptools wheel uv
 COPY pyproject.toml uv.lock README.md ./
 
 # Copy package source
-COPY autonomous_returns_v0 ./autonomous_returns_v0
+COPY RevLogiXenv_v0 ./RevLogiXenv_v0
 COPY server ./server
 COPY openenv.yaml ./openenv.yaml
 COPY run_baseline.py run_server.py ./

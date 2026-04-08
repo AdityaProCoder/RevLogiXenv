@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from autonomous_returns_v0 import (
+from RevLogiXenv_v0 import (
     AutonomousReturnsEnv,
     DispositionAction,
     Grader,

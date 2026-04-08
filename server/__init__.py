@@ -5,5 +5,5 @@ This package enables import paths such as:
 - `server.app:app`
 
 The actual FastAPI app is provided in `server/app.py` (root-level wrapper)
-and builds the runtime app directly from `autonomous_returns_v0`.
+and builds the runtime app directly from `RevLogiXenv_v0`.
 """

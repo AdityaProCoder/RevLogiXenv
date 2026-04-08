@@ -1,4 +1,4 @@
-"""FastAPI/OpenEnv application entrypoint for AutonomousReturns-v0."""
+"""FastAPI/OpenEnv application entrypoint for RevLogiXenv."""
 
 from __future__ import annotations
 
@@ -6,14 +6,14 @@ import os
 from importlib import import_module
 from typing import Any
 
-from autonomous_returns_v0 import AutonomousReturnsEnv, ReturnsAction, ReturnsObservation
+from RevLogiXenv_v0 import AutonomousReturnsEnv, ReturnsAction, ReturnsObservation
 
 _openenv_env_server = import_module("openenv.core.env_server")
 create_fastapi_app = getattr(_openenv_env_server, "create_fastapi_app")
 
 
 def _env_factory() -> AutonomousReturnsEnv:
-    task = os.getenv("AUTONOMOUS_RETURNS_TASK", "easy").strip().lower() or "easy"
+    task = os.getenv("REVLOGIXENV_TASK", os.getenv("AUTONOMOUS_RETURNS_TASK", "easy")).strip().lower() or "easy"
     return AutonomousReturnsEnv(task=task)
 
 
