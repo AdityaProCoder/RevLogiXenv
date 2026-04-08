@@ -1,8 +1,8 @@
 """
 Grader for AutonomousReturns-v0 tasks.
 
-This grader provides deterministic, bounded scoring in [0.0, 1.0] and
-robust hard-task handling for fraud metrics.
+This grader provides deterministic, bounded scoring in the open interval
+(0.0, 1.0) and robust hard-task handling for fraud metrics.
 """
 
 from __future__ import annotations
@@ -34,8 +34,9 @@ class Grader:
     - medium: final_score = margin_score
     - hard: final_score = 0.6 * margin_score + 0.4 * fraud_f1
 
-    All score outputs are clamped to [0.0, 1.0].
+    All score outputs are clamped to (0.0, 1.0).
     """
+    EPS = 1e-6
 
     def __init__(self, task: str):
         self.task = task
@@ -98,14 +99,16 @@ class Grader:
 
         agent_profit = float(self.env.state.total_ledger)
         optimal_profit = float(self.oracle.compute_optimal_profit())
-        margin_score = self._clamp01(self.oracle.compute_margin_score(agent_profit))
+        margin_score = self._clamp_open01(
+            self.oracle.compute_margin_score(agent_profit)
+        )
 
         fraud = self._compute_fraud_metrics()
 
         if self.task == "hard":
-            final_score = self._clamp01(0.6 * margin_score + 0.4 * fraud.f1)
+            final_score = self._clamp_open01(0.6 * margin_score + 0.4 * fraud.f1)
         else:
-            final_score = margin_score
+            final_score = self._clamp_open01(margin_score)
 
         return {
             "task": self.task,
@@ -159,7 +162,14 @@ class Grader:
 
         if positives == 0 and predicted == 0:
             # Nothing to detect and no false alarms: perfect.
-            return FraudMetrics(tp=0, fp=0, fn=0, precision=1.0, recall=1.0, f1=1.0)
+            return FraudMetrics(
+                tp=0,
+                fp=0,
+                fn=0,
+                precision=self._clamp_open01(1.0),
+                recall=self._clamp_open01(1.0),
+                f1=self._clamp_open01(1.0),
+            )
 
         precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
         recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
@@ -173,11 +183,11 @@ class Grader:
             tp=tp,
             fp=fp,
             fn=fn,
-            precision=self._clamp01(precision),
-            recall=self._clamp01(recall),
-            f1=self._clamp01(f1),
+            precision=self._clamp_open01(precision),
+            recall=self._clamp_open01(recall),
+            f1=self._clamp_open01(f1),
         )
 
-    @staticmethod
-    def _clamp01(x: float) -> float:
-        return max(0.0, min(1.0, float(x)))
+    @classmethod
+    def _clamp_open01(cls, x: float) -> float:
+        return max(cls.EPS, min(1.0 - cls.EPS, float(x)))
