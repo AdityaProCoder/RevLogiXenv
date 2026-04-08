@@ -1,4 +1,4 @@
-# AutonomousReturns-v0 (RevLogisticsRL)
+# RevLogiXenv
 
 Reverse logistics is one of the most expensive and least optimized parts of e-commerce.
 
@@ -92,6 +92,45 @@ Useful endpoints:
 ```bash
 python run_baseline.py --mode local --tasks easy,medium,hard --seeds 42 --pretty
 ```
+
+## Benchmark Results
+
+Performance was evaluated across three difficulty tiers comparing heuristic baseline against LLM agents (MiniMax-M2.7, Gemini 2.5 Flash, Gemini 2.5 Pro):
+
+### Task Completion (Final Score)
+
+| Difficulty | Heuristic | MiniMax-M2.7 | Gemini 2.5 Flash | Gemini 2.5 Pro |
+|:-----------|:----------|:-------------|:------------------|:----------------|
+| Easy       | 0.946     | 0.770        | 0.876             | **0.959**       |
+| Medium     | 0.690     | 0.536        | 0.842             | **0.931**       |
+| Hard       | 0.395     | 0.359        | 0.621             | **0.783**       |
+
+### Fraud Detection (F1 Score)
+
+| Difficulty | Heuristic | MiniMax-M2.7 | Gemini 2.5 Flash | Gemini 2.5 Pro |
+|:-----------|:----------|:-------------|:------------------|:----------------|
+| Easy       | 1.00      | 1.00         | 1.00              | 1.00            |
+| Medium     | 0.706     | 0.00         | 0.857             | **0.923**       |
+| Hard       | 0.545     | 0.00         | 0.800             | **0.923**       |
+
+### Economic Efficiency (Hard Tier)
+
+| Model             | Profit    | Efficiency |
+|:------------------|:----------|:-----------|
+| Optimal (Theoretical) | $9,363.39 | 100%       |
+| Gemini 2.5 Pro    | $6,453.76 | 68.9%      |
+| Gemini 2.5 Flash  | $4,697.00 | 50.1%      |
+| Heuristic         | $2,762.76 | 29.5%      |
+
+### Key Findings
+
+- **Reasoning Gap**: High-tier reasoning models (Gemini 2.5 Pro) achieve 133% more profit than heuristics in complex environments
+- **Safety Collapse**: MiniMax-M2.7 exhibits "fraud paranoia" in Hard mode, triggering flag_fraud 18x per 50 steps with near-zero rewards
+- **Graceful Degradation**: Gemini models maintain robust F1 > 0.90 under uncertainty; heuristic and MiniMax collapse at higher difficulties
+- **Diagnostic Inefficiency**: Lower-tier models enter inspection loops with diminishing returns rather than committing to decisive actions
+
+Full technical analysis: `Technical Inference Analysis inference.md`  
+Full benchmark report: `Technical Submission Baseline Agent.md`
 
 ## More Documentation
 
