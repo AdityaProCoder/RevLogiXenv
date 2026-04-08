@@ -1,0 +1,49 @@
+# Git / VCS
+.git
+.gitignore
+
+# Secrets / env files
+.env
+.env.*
+!.env.example
+
+# Python cache / bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Editor / OS junk
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local logs and temp files
+*.log
+*.tmp
+*.swp
+
+# Project outputs and non-runtime dirs
+outputs/
+spaces/
+tests/

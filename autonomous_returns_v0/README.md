@@ -151,7 +151,7 @@ pytest -q
 ## Run API Server (Single Command)
 
 Either command below starts the API server at:
-`http://localhost:8000/`
+`http://localhost:8000` (see `/health` and `/docs`)
 
 ```bash
 python run_server.py
@@ -216,7 +216,7 @@ Deterministic local baseline (this branch, current implementation):
 | medium | 42,1337,2025 | ~0.75-0.85 | ~0.75-0.85 | ~7000 | ~0.65 |
 | hard | 42,1337,2025 | ~0.65-0.75 | ~0.65-0.75 | ~5000 | ~0.70 |
 
-**Note:** Scores reflect swapped difficulty. medium is now the hardest (extra_hard noise, 40 items). hard uses previous hard config.
+**Note:** Scores are illustrative examples and can vary with environment configuration and random seeds.
 
 ## Optional LLM Baseline
 
