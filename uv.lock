@@ -145,57 +145,6 @@ wheels = [
 ]
 
 [[package]]
-name = "autonomous-returns-v0"
-version = "0.2.0"
-source = { editable = "." }
-dependencies = [
-    { name = "fastapi" },
-    { name = "google-cloud-aiplatform" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "numpy", version = "2.4.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "openenv-core", extra = ["core"] },
-    { name = "pydantic" },
-    { name = "python-dotenv" },
-    { name = "requests" },
-    { name = "uvicorn" },
-]
-
-[package.optional-dependencies]
-all = [
-    { name = "google-cloud-aiplatform" },
-    { name = "openai" },
-]
-dev = [
-    { name = "pytest" },
-    { name = "pytest-cov" },
-]
-openai = [
-    { name = "openai" },
-]
-vertex = [
-    { name = "google-cloud-aiplatform" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "fastapi", specifier = ">=0.115.0" },
-    { name = "google-cloud-aiplatform", specifier = ">=1.145.0" },
-    { name = "google-cloud-aiplatform", marker = "extra == 'all'", specifier = ">=1.145.0" },
-    { name = "google-cloud-aiplatform", marker = "extra == 'vertex'", specifier = ">=1.145.0" },
-    { name = "numpy", specifier = ">=1.20" },
-    { name = "openai", marker = "extra == 'all'", specifier = ">=1.0" },
-    { name = "openai", marker = "extra == 'openai'", specifier = ">=1.0" },
-    { name = "openenv-core", extras = ["core"], specifier = ">=0.2.2" },
-    { name = "pydantic", specifier = ">=2.0.0" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },
-    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.0.0" },
-    { name = "python-dotenv", specifier = ">=1.0.0" },
-    { name = "requests", specifier = ">=2.31.0" },
-    { name = "uvicorn", specifier = ">=0.24.0" },
-]
-provides-extras = ["openai", "vertex", "all", "dev"]
-
-[[package]]
 name = "backports-tarfile"
 version = "1.2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2786,6 +2735,57 @@ sdist = { url = "https://files.pythonhosted.org/packages/5f/a4/98b9c7c6428a668bf
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d7/8e/7540e8a2036f79a125c1d2ebadf69ed7901608859186c856fa0388ef4197/requests-2.33.1-py3-none-any.whl", hash = "sha256:4e6d1ef462f3626a1f0a0a9c42dd93c63bad33f9f1c1937509b8c5c8718ab56a", size = 64947, upload-time = "2026-03-30T16:09:13.83Z" },
 ]
+
+[[package]]
+name = "revlogixenv"
+version = "0.2.0"
+source = { editable = "." }
+dependencies = [
+    { name = "fastapi" },
+    { name = "google-cloud-aiplatform" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "numpy", version = "2.4.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "openenv-core", extra = ["core"] },
+    { name = "pydantic" },
+    { name = "python-dotenv" },
+    { name = "requests" },
+    { name = "uvicorn" },
+]
+
+[package.optional-dependencies]
+all = [
+    { name = "google-cloud-aiplatform" },
+    { name = "openai" },
+]
+dev = [
+    { name = "pytest" },
+    { name = "pytest-cov" },
+]
+openai = [
+    { name = "openai" },
+]
+vertex = [
+    { name = "google-cloud-aiplatform" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastapi", specifier = ">=0.115.0" },
+    { name = "google-cloud-aiplatform", specifier = ">=1.145.0" },
+    { name = "google-cloud-aiplatform", marker = "extra == 'all'", specifier = ">=1.145.0" },
+    { name = "google-cloud-aiplatform", marker = "extra == 'vertex'", specifier = ">=1.145.0" },
+    { name = "numpy", specifier = ">=1.20" },
+    { name = "openai", marker = "extra == 'all'", specifier = ">=1.0" },
+    { name = "openai", marker = "extra == 'openai'", specifier = ">=1.0" },
+    { name = "openenv-core", extras = ["core"], specifier = ">=0.2.2" },
+    { name = "pydantic", specifier = ">=2.0.0" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },
+    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.0.0" },
+    { name = "python-dotenv", specifier = ">=1.0.0" },
+    { name = "requests", specifier = ">=2.31.0" },
+    { name = "uvicorn", specifier = ">=0.24.0" },
+]
+provides-extras = ["openai", "vertex", "all", "dev"]
 
 [[package]]
 name = "rich"
