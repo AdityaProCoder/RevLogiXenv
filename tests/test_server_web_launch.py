@@ -17,7 +17,7 @@ def test_build_app_web_enabled_mounts_web(monkeypatch) -> None:
     client = TestClient(app)
 
     response = client.get("/web/", follow_redirects=True)
-    assert response.status_code != 404
+    assert response.status_code == 404
 
 
 def test_build_app_default_non_web_still_serves_health(monkeypatch) -> None:

@@ -138,7 +138,6 @@ Optional:
 ```bash
 pip install ".[openai]"
 pip install ".[vertex]"
-pip install ".[web]"
 pip install ".[all]"
 ```
 
@@ -149,10 +148,10 @@ openenv validate
 pytest -q
 ```
 
-## Run Web UI (Single Command)
+## Run API Server (Single Command)
 
-Either command below enables the web interface automatically and serves:
-`http://localhost:8000/web/`
+Either command below starts the API server at:
+`http://localhost:8000/`
 
 ```bash
 python run_server.py

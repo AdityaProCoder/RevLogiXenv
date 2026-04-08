@@ -5,7 +5,6 @@ colorFrom: blue
 colorTo: green
 sdk: docker
 app_port: 7860
-base_path: /web
 tags:
   - openenv
   - reinforcement-learning
@@ -18,7 +17,6 @@ tags:
 AutonomousReturns-v0 is a real-world reverse-logistics environment for training and evaluating agent policies on e-commerce returns triage.
 
 This Space serves the environment through an OpenEnv-compatible FastAPI runtime.
-The interactive Gradio interface is available at `/web`.
 
 ## Environment Summary
 
@@ -65,17 +63,12 @@ From the project root (`returnenv/autonomous_returns_v0`):
 
 ## Space/Docker Runtime
 
-This Space uses the Dockerfile in `spaces/Dockerfile` and launches:
+This Space uses the root Dockerfile and launches:
 
 - `uvicorn server.app:app --host 0.0.0.0 --port 7860`
 
 The container exposes and serves on port `7860`, matching Hugging Face Space configuration.
-`ENABLE_WEB_INTERFACE=true` is enabled for this Space runtime, so both:
-
-- OpenEnv API endpoints (programmatic usage), and
-- Gradio judge-facing interface at `/web`
-
-are available.
+This deployment exposes OpenEnv API endpoints (programmatic usage) only.
 
 ## Environment Variable Configuration
 
@@ -104,21 +97,6 @@ Two baselines are included:
 
 2. `LocalBaselineRunner` (deterministic, no external API)
    - Reproducible task scoring over fixed seeds.
-
-## Judge Playground (`/web`)
-
-The custom Gradio tab (`Custom`) includes:
-
-- Manual action controls for all 8 disposition actions
-- Heuristic autoplay (deterministic, no API key required)
-- LLM autoplay (`openai` or `google`) using runtime env vars only
-
-LLM autoplay requires:
-
-- `OPENAI_API_KEY` for OpenAI mode
-- `VERTEX_PROJECT_ID` for Google mode
-
-No API keys are entered in the UI.
 
 ## Notes
 

@@ -22,8 +22,7 @@ dependencies = [
 [project.optional-dependencies]
 openai = ["openai>=1.0"]
 vertex = ["google-cloud-aiplatform>=1.145.0"]
-web = ["gradio>=6.0.0"]
-all = ["openai>=1.0", "google-cloud-aiplatform>=1.145.0", "gradio>=6.0.0"]
+all = ["openai>=1.0", "google-cloud-aiplatform>=1.145.0"]
 dev = [
     "pytest>=8.0.0",
     "pytest-cov>=4.0.0",

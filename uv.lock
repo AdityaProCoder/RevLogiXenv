@@ -163,7 +163,6 @@ dependencies = [
 [package.optional-dependencies]
 all = [
     { name = "google-cloud-aiplatform" },
-    { name = "gradio" },
     { name = "openai" },
 ]
 dev = [
@@ -176,9 +175,6 @@ openai = [
 vertex = [
     { name = "google-cloud-aiplatform" },
 ]
-web = [
-    { name = "gradio" },
-]
 
 [package.metadata]
 requires-dist = [
@@ -186,8 +182,6 @@ requires-dist = [
     { name = "google-cloud-aiplatform", specifier = ">=1.145.0" },
     { name = "google-cloud-aiplatform", marker = "extra == 'all'", specifier = ">=1.145.0" },
     { name = "google-cloud-aiplatform", marker = "extra == 'vertex'", specifier = ">=1.145.0" },
-    { name = "gradio", marker = "extra == 'all'", specifier = ">=6.0.0" },
-    { name = "gradio", marker = "extra == 'web'", specifier = ">=6.0.0" },
     { name = "numpy", specifier = ">=1.20" },
     { name = "openai", marker = "extra == 'all'", specifier = ">=1.0" },
     { name = "openai", marker = "extra == 'openai'", specifier = ">=1.0" },
@@ -199,7 +193,7 @@ requires-dist = [
     { name = "requests", specifier = ">=2.31.0" },
     { name = "uvicorn", specifier = ">=0.24.0" },
 ]
-provides-extras = ["openai", "vertex", "web", "all", "dev"]
+provides-extras = ["openai", "vertex", "all", "dev"]
 
 [[package]]
 name = "backports-tarfile"
