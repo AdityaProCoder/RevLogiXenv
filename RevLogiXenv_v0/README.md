@@ -21,7 +21,7 @@ from RevLogiXenv_v0 import AutonomousReturnsEnv, ReturnsAction, DispositionActio
 - Observation: noisy proxies (condition score, packaging, return reason, damage flags, inspection notes, customer signals).
 - Action: one operational decision per step (resell/discount/refurbish/dispose/flag fraud/inspect/wait).
 - Transition: non-`inspect` actions enqueue items into a pending resolution queue with task-dependent delay.
-- Reward: raw economics + explicit penalties, shaped to `[0, 1]` for stable RL evaluation.
+- Reward: raw economics + explicit penalties, shaped to `[0.01, 0.99]` for stable RL evaluation.
 
 ## OpenEnv API Contract
 
@@ -79,4 +79,3 @@ grader = Grader("hard")
 result = grader.grade(HeuristicPolicy(), seed=42)
 print(result["final_score"])
 ```
-

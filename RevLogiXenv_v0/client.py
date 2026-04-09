@@ -1,5 +1,5 @@
 """
-Typed EnvClient implementation for AutonomousReturns-v0.
+Typed EnvClient implementation for RevLogiXen-v0.
 
 Designed for OpenEnv interoperability with:
 - Strongly typed action/observation/state models
@@ -43,7 +43,7 @@ class AutonomousReturnsClient(EnvClient):
         """
         return action.model_dump()
 
-    def _parse_result(self, payload: Dict[str, Any]) -> StepResult[ReturnsObservation]:
+    def _parse_result(self, payload: Dict[str, Any]) -> StepResult[ReturnsObservation]:  # type: ignore[type-arg]
         """
         Parse server response into typed observation + step metadata.
         """
