@@ -32,7 +32,7 @@ def test_reward_bounds_across_tasks() -> None:
         while not obs.done:
             obs = env.step(policy(obs))
             if obs.reward_detail is not None:
-                assert 0.0 <= obs.reward_detail.value <= 1.0
+                assert 0.01 <= obs.reward_detail.value <= 0.99
 
 
 def test_repeatability_for_fixed_seed() -> None:

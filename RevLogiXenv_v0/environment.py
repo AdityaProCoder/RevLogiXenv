@@ -186,6 +186,9 @@ TASK_CONFIG = {
     },
 }
 
+MIN_REWARD_SCORE = 0.01
+MAX_REWARD_SCORE = 0.99
+
 
 @dataclass(frozen=True)
 class EpisodeRecord:
@@ -838,10 +841,14 @@ class AutonomousReturnsEnv(Environment[ReturnsAction, ReturnsObservation, EnvSta
         # Use arctan instead of logistic to avoid early saturation on high-ticket batches.
         base_value = 0.5 + (float(np.arctan(raw_step_reward / 80.0)) / float(np.pi))
         penalty_total = sum(max(0.0, float(v)) for v in penalties.values())
-        value = float(np.clip(base_value - penalty_total, 0.0, 1.0))
+        value = float(np.clip(base_value - penalty_total, MIN_REWARD_SCORE, MAX_REWARD_SCORE))
 
         margin_component = float(
-            np.clip(0.5 + (float(np.arctan(raw_step_reward / 120.0)) / float(np.pi)), 0.0, 1.0)
+            np.clip(
+                0.5 + (float(np.arctan(raw_step_reward / 120.0)) / float(np.pi)),
+                MIN_REWARD_SCORE,
+                MAX_REWARD_SCORE,
+            )
         )
         fraud_signal = (
             float(components.get("fraud_recovery", 0.0))
@@ -849,7 +856,11 @@ class AutonomousReturnsEnv(Environment[ReturnsAction, ReturnsObservation, EnvSta
             + float(components.get("false_flag_penalty", 0.0))
         )
         fraud_component = float(
-            np.clip(0.5 + (float(np.arctan(fraud_signal / 60.0)) / float(np.pi)), 0.0, 1.0)
+            np.clip(
+                0.5 + (float(np.arctan(fraud_signal / 60.0)) / float(np.pi)),
+                MIN_REWARD_SCORE,
+                MAX_REWARD_SCORE,
+            )
         )
 
         return Reward(

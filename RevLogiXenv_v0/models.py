@@ -83,10 +83,10 @@ class ResolutionSummary(BaseModel):
 class Reward(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    value: float = Field(ge=0.0, le=1.0)
+    value: float = Field(ge=0.01, le=0.99)
     raw_step_reward: float = 0.0
-    margin_component: float = Field(ge=0.0, le=1.0, default=0.0)
-    fraud_component: float = Field(ge=0.0, le=1.0, default=0.0)
+    margin_component: float = Field(ge=0.01, le=0.99, default=0.5)
+    fraud_component: float = Field(ge=0.01, le=0.99, default=0.5)
     penalties: dict[str, float] = Field(default_factory=dict)
     components: dict[str, float] = Field(
         default_factory=dict,

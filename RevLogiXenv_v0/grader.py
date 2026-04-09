@@ -1,8 +1,8 @@
 """
 Grader for AutonomousReturns-v0 tasks.
 
-This grader provides deterministic, bounded scoring in the open interval
-(0.0, 1.0) and robust hard-task handling for fraud metrics.
+This grader provides deterministic, bounded scoring in the strict interval
+[0.01, 0.99] and robust hard-task handling for fraud metrics.
 """
 
 from __future__ import annotations
@@ -34,9 +34,11 @@ class Grader:
     - medium: final_score = margin_score
     - hard: final_score = 0.6 * margin_score + 0.4 * fraud_f1
 
-    All score outputs are clamped to (0.0, 1.0).
+    All score outputs are clamped to [0.01, 0.99].
     """
-    EPS = 1e-6
+    MIN_SCORE = 0.01
+    MAX_SCORE = 0.99
+    SCORE_DECIMALS = 3
 
     def __init__(self, task: str):
         self.task = task
@@ -99,16 +101,16 @@ class Grader:
 
         agent_profit = float(self.env.state.total_ledger)
         optimal_profit = float(self.oracle.compute_optimal_profit())
-        margin_score = self._clamp_open01(
+        margin_score = self._clamp_score(
             self.oracle.compute_margin_score(agent_profit)
         )
 
         fraud = self._compute_fraud_metrics()
 
         if self.task == "hard":
-            final_score = self._clamp_open01(0.6 * margin_score + 0.4 * fraud.f1)
+            final_score = self._clamp_score(0.6 * margin_score + 0.4 * fraud.f1)
         else:
-            final_score = self._clamp_open01(margin_score)
+            final_score = self._clamp_score(margin_score)
 
         return {
             "task": self.task,
@@ -131,8 +133,8 @@ class Grader:
         Compute robust fraud metrics from full resolution history.
 
         Special handling:
-        - If there are no fraud cases and no fraud flags, treat as perfect (f1=1.0).
-        - If there are no fraud cases but agent flags non-fraud items, f1=0.0.
+        - If there are no fraud cases and no fraud flags, treat as near-perfect (f1=0.99 after clamp).
+        - If there are no fraud cases but agent flags non-fraud items, clamp low (f1=0.01 floor).
         """
         tp = fp = fn = 0
         positives = 0
@@ -166,9 +168,9 @@ class Grader:
                 tp=0,
                 fp=0,
                 fn=0,
-                precision=self._clamp_open01(1.0),
-                recall=self._clamp_open01(1.0),
-                f1=self._clamp_open01(1.0),
+                precision=self._clamp_score(1.0),
+                recall=self._clamp_score(1.0),
+                f1=self._clamp_score(1.0),
             )
 
         precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
@@ -183,11 +185,12 @@ class Grader:
             tp=tp,
             fp=fp,
             fn=fn,
-            precision=self._clamp_open01(precision),
-            recall=self._clamp_open01(recall),
-            f1=self._clamp_open01(f1),
+            precision=self._clamp_score(precision),
+            recall=self._clamp_score(recall),
+            f1=self._clamp_score(f1),
         )
 
     @classmethod
-    def _clamp_open01(cls, x: float) -> float:
-        return max(cls.EPS, min(1.0 - cls.EPS, float(x)))
+    def _clamp_score(cls, x: float) -> float:
+        clamped = max(cls.MIN_SCORE, min(cls.MAX_SCORE, float(x)))
+        return round(clamped, cls.SCORE_DECIMALS)

@@ -4,7 +4,7 @@ Oracle for AutonomousReturns-v0.
 This implementation is deterministic and robust:
 - Uses immutable episode snapshots captured at environment reset time
 - Never reads mutable/depleted internal queues during or after rollout
-- Provides bounded margin scoring in [0.0, 1.0]
+- Provides bounded margin scoring in [0.01, 0.99]
 """
 
 from __future__ import annotations
@@ -23,6 +23,9 @@ class OracleRecord:
 
 
 class Oracle:
+    MIN_SCORE = 0.01
+    MAX_SCORE = 0.99
+
     def __init__(self, env):
         self._env = env
         self._snapshot: list[OracleRecord] = self._build_snapshot()
@@ -83,15 +86,15 @@ class Oracle:
 
     def compute_margin_score(self, agent_profit: float) -> float:
         """
-        Bounded margin score in [0, 1].
+        Bounded margin score in [0.01, 0.99].
 
-        - 1.0 when agent reaches or exceeds oracle
-        - 0.0 when agent_profit <= 0 and oracle > 0
+        - 0.99 when agent reaches or exceeds oracle
+        - 0.01 when agent_profit <= 0 and oracle > 0
         - smooth linear scaling in-between
         """
         optimal = self.compute_optimal_profit()
         if optimal <= 0:
-            return 1.0 if agent_profit >= 0 else 0.0
+            return self.MAX_SCORE if agent_profit >= 0 else self.MIN_SCORE
 
         ratio = agent_profit / optimal
-        return max(0.0, min(1.0, float(ratio)))
+        return max(self.MIN_SCORE, min(self.MAX_SCORE, float(ratio)))

@@ -23,9 +23,9 @@ def test_grader_is_bounded_and_deterministic() -> None:
     result_2 = grader_2.grade(_agent_fn, seed=2025)
 
     assert result_1 == result_2
-    assert 0.0 <= result_1["margin_score"] <= 1.0
-    assert 0.0 <= result_1["fraud_metrics"]["f1"] <= 1.0
-    assert 0.0 <= result_1["final_score"] <= 1.0
+    assert 0.01 <= result_1["margin_score"] <= 0.99
+    assert 0.01 <= result_1["fraud_metrics"]["f1"] <= 0.99
+    assert 0.01 <= result_1["final_score"] <= 0.99
 
 
 def test_score_completed_episode_requires_done() -> None:
@@ -50,4 +50,4 @@ def test_score_completed_episode_after_rollout() -> None:
     grader = Grader("medium")
     result = grader.score_completed_episode(env=env)
     assert result["task"] == "medium"
-    assert 0.0 <= result["final_score"] <= 1.0
+    assert 0.01 <= result["final_score"] <= 0.99

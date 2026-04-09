@@ -29,7 +29,7 @@ tasks:
     delay_type: fixed_3
     scoring:
       type: margin
-      range: [0.0, 1.0]
+      range: [0.01, 0.99]
 
   medium:
     description: "High uncertainty - corresponds to previous hard difficulty"
@@ -39,7 +39,7 @@ tasks:
     delay_type: variable
     scoring:
       type: composite
-      range: [0.0, 1.0]
+      range: [0.01, 0.99]
       weights:
         margin: 0.6
         fraud_f1: 0.4
@@ -52,7 +52,7 @@ tasks:
     delay_type: variable
     scoring:
       type: composite
-      range: [0.0, 1.0]
+      range: [0.01, 0.99]
       weights:
         margin: 0.6
         fraud_f1: 0.4
@@ -65,7 +65,7 @@ tasks:
     delay_type: immediate
     scoring:
       type: margin
-      range: [0.0, 1.0]
+      range: [0.01, 0.99]
 
 action_space:
   type: structured
@@ -117,8 +117,7 @@ state_space:
 reward:
   type: shaped
   model: Reward
-  range: [0.0, 1.0]
+  range: [0.01, 0.99]
   notes:
-    - Per-step reward is shaped from raw economics and bounded to [0, 1].
+    - Per-step reward is shaped from raw economics and bounded to [0.01, 0.99].
     - Hard-task final grading combines margin and fraud F1.
-

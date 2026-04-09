@@ -24,10 +24,11 @@ BENCHMARK = os.getenv("BENCHMARK", "revlogixenv_v0")
 # Backwards-compatible label retained by older evaluators (if they hardcode it).
 LEGACY_BENCHMARK_NAME = os.getenv("LEGACY_BENCHMARK_NAME", "revlogixenv_v0")
 MAX_STEPS = 100
-MAX_TOTAL_REWARD = 1.0
 SUCCESS_SCORE_THRESHOLD = 0.5
 TEMPERATURE = 0.15
 MAX_TOKENS = 64
+MIN_SCORE = 0.01
+MAX_SCORE = 0.99
 
 LLM_SYSTEM_PROMPT = (
     "You are a reverse-logistics triage agent. Output EXACTLY ONE WORD from this list: "
@@ -190,8 +191,8 @@ def run_episode(client: OpenAI, task_name: str) -> tuple[bool, int, float, list[
             if done:
                 break
 
-        score = sum(rewards) / MAX_TOTAL_REWARD if MAX_TOTAL_REWARD > 0 else 0.0
-        score = min(max(score, 0.0), 1.0)
+        score = (sum(rewards) / len(rewards)) if rewards else 0.0
+        score = max(MIN_SCORE, min(score, MAX_SCORE))
         success = score >= SUCCESS_SCORE_THRESHOLD
     finally:
         try:
