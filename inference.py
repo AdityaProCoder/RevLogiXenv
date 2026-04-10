@@ -38,7 +38,7 @@ LLM_SYSTEM_PROMPT = (
 
 
 def _bool_str(value: bool) -> str:
-    return "true" if value else "false"
+    return "True" if value else "False"
 
 
 def log_start(task: str, env: str, model: str) -> None:
@@ -54,9 +54,9 @@ def log_step(step: int, action: str, reward: float, done: bool, error: str | Non
     )
 
 
-def log_end(success: bool, steps: int, rewards: list[float]) -> None:
-    rewards_str = ",".join(f"{r:.2f}" for r in rewards)
-    print(f"[END] success={_bool_str(success)} steps={steps} rewards={rewards_str}", flush=True)
+def log_end(success: bool, steps: int, score: float, rewards: list[float]) -> None:
+    rewards_str = str(rewards)  # List format: [0.5, 0.93, ...] as required by validator
+    print(f"[END] success={_bool_str(success)} steps={steps} score={score:.4f} rewards={rewards_str}", flush=True)
 
 
 def observation_to_prompt(obs: ReturnsObservation) -> str:
@@ -199,7 +199,7 @@ def run_episode(client: OpenAI, task_name: str) -> tuple[bool, int, float, list[
             env.close()
         except Exception:
             pass
-        log_end(success=success, steps=steps_taken, rewards=rewards)
+        log_end(success=success, steps=steps_taken, score=score, rewards=rewards)
 
     return success, steps_taken, score, rewards
 

@@ -1,5 +1,5 @@
 """
-Grader for AutonomousReturns-v0 tasks.
+Grader for revLogiXenv-v0 tasks.
 
 This grader provides deterministic, bounded scoring in the strict interval
 [0.01, 0.99] and robust hard-task handling for fraud metrics.
