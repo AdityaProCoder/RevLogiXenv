@@ -186,6 +186,9 @@ TASK_CONFIG = {
     },
 }
 
+# Constraints
+# Per-step rewards and task scores are explicitly bounded to (0.01, 0.99) 
+# to comply with strict hackathon Phase 2 deep validation requirements.
 MIN_REWARD_SCORE = 0.01
 MAX_REWARD_SCORE = 0.99
 

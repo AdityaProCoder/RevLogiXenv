@@ -65,7 +65,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--mode",
         choices=("local", "llm"),
         default="local",
-        help="Execution mode: local (deterministic) or llm (auto/OpenAI/Google).",
+        help="Execution mode: local (deterministic) or llm (auto/OpenAI).",
     )
     parser.add_argument(
         "--tasks",

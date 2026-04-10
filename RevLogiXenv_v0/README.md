@@ -1,81 +1,47 @@
-# RevLogiXenv_v0
+# RevLogiXenv Core Package
 
-This directory contains the core Python environment package for the `RevLogiXenv/` repository:
+This package (`RevLogiXenv_v0`) implements the core environment logic and reference policies for the RevLogiXenv reverse logistics benchmark.
 
-- Environment dynamics (POMDP + delayed resolution)
-- Typed action/observation/state models (OpenEnv-compatible)
-- Reference policies (deterministic + optional LLM baseline runner)
-- Grading utilities (oracle margin, fraud metrics, composite scores)
+## Environment Overview
 
-For a quickstart (setup + run commands), see the root `README.md`.
+RevLogiXenv is a Partially Observable Markov Decision Process (POMDP) that simulates the operational realities of e-commerce returns.
 
-## Imports (Python)
+### Core Dynamics
+- **Condition States**: Every item has a ground-truth condition: `perfect`, `lightly_used`, `damaged`, or `fraudulent`.
+- **Noisy Observations**: Agents see condition scores (0-10) and packaging status, which have high variance (especially for fraudulent items).
+- **Delayed Resolution**: Most actions enqueue items into a "pending" queue. Financial results are only "resolved" after a task-specific delay.
+- **Operational Costs**: Actions like `inspect` or `refurbish` carry fixed and variable costs that must be balanced against potential recovery values.
 
-```python
-from RevLogiXenv_v0 import AutonomousReturnsEnv, ReturnsAction, DispositionAction
-```
+### Reward Shaping
+Rewards are derived from actual economic outcomes (resale price - costs). Final rewards are shaped into the `(0.01, 0.99)` range:
+- `0.99`: Reached or exceeded the theoretical optimal (Oracle).
+- `0.01`: Significant loss or failure to act.
+- Linear scaling used between bounds.
 
-## Formal Framing (POMDP)
+## API Contract
 
-- Hidden state: true condition of each item (`perfect`, `lightly_used`, `damaged`, `fraudulent`).
-- Observation: noisy proxies (condition score, packaging, return reason, damage flags, inspection notes, customer signals).
-- Action: one operational decision per step (resell/discount/refurbish/dispose/flag fraud/inspect/wait).
-- Transition: non-`inspect` actions enqueue items into a pending resolution queue with task-dependent delay.
-- Reward: raw economics + explicit penalties, shaped to `[0.01, 0.99]` for stable RL evaluation.
-
-## OpenEnv API Contract
-
-Required methods/properties:
-
-- `reset(seed=None, episode_id=None, reveal_hidden_conditions=False, task=None, **kwargs) -> ReturnsObservation`
-- `step(action: ReturnsAction) -> ReturnsObservation`
-- `state -> ReturnsState`
-
-Typed action space (`ReturnsAction.action`):
-
-- `resell_full`
-- `resell_discount_15`
-- `resell_discount_30`
-- `resell_discount_50`
-- `refurbish`
-- `dispose`
-- `flag_fraud`
-- `inspect`
-- `wait`
-
-## Tasks
-
-Task tiers are configured in `RevLogiXenv_v0/environment.py`:
-
-- `easy`: 20 items, fraud disabled, fixed delay
-- `medium`: 30 items, fraud enabled, variable delay
-- `hard`: 40 items, fraud enabled, extra-hard noise, variable delay
-
-## Example: Direct Environment Loop
+The environment implements the standard OpenEnv API:
 
 ```python
-from RevLogiXenv_v0 import AutonomousReturnsEnv, ReturnsAction, DispositionAction
+from RevLogiXenv_v0 import AutonomousReturnsEnv
 
-env = AutonomousReturnsEnv(task="hard")
+env = AutonomousReturnsEnv(task="medium")
 obs = env.reset(seed=42)
 
-while not obs.done:
-    if obs.current_item is None:
-        action = ReturnsAction(action=DispositionAction.WAIT)
-    else:
-        action = ReturnsAction(action=DispositionAction.RESELL_DISCOUNT_30)
-    obs = env.step(action)
-
-print(env.state.total_ledger)
+# Action space is discrete (ReturnsAction)
+action = get_agent_decision(obs)
+obs = env.step(action)
 ```
 
-## Example: Grading a Policy
+## Reference Policies
 
-```python
-from RevLogiXenv_v0 import Grader
-from RevLogiXenv_v0.policies import HeuristicPolicy
+1. **Heuristic**: A robust deterministic policy in `RevLogiXenv_v0/policies.py` that handles threshold-based decision making.
+2. **Baseline LLM**: An OpenAI-compatible agent in `RevLogiXenv_v0/baseline.py` that uses prompt-based reasoning.
 
-grader = Grader("hard")
-result = grader.grade(HeuristicPolicy(), seed=42)
-print(result["final_score"])
-```
+## Grading and Evaluation
+
+The `Grader` class provides precise evaluation of agent behavior:
+- **Profit**: Raw monetary outcome.
+- **Margin Score**: Normalised profit relative to an Oracle.
+- **Fraud Metrics**: Precision, Recall, and F1 for identifying fraudulent items.
+- **Composite Score**: Weighted combination of margin and fraud metrics (used for Hard difficulty).

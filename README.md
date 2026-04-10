@@ -10,142 +10,114 @@ tags:
   - reinforcement-learning
   - reverse-logistics
   - fraud-detection
+  - decision-making
 ---
 
 # RevLogiXenv
 
-Reverse logistics is one of the most expensive and least optimized parts of e-commerce.
+RevLogiXenv is a high-fidelity reinforcement learning environment designed to benchmark agentic reasoning in **reverse logistics**. 
 
-Every returned item forces a decision:
-- resell it?
-- discount it?
-- refurbish it?
-- dispose it?
-- flag it as fraud?
+Unlike simple classification tasks, reverse logistics involves complex, sequential decisions under significant uncertainty. Every returned item in an e-commerce ecosystem requires a triage decision that impacts long-term profitability and system integrity.
 
-These decisions are made under uncertainty:
-- condition scores are noisy
-- customer signals are imperfect
-- fraud is adversarial and evolving
-- outcomes are often delayed
+## The Challenge
 
-Most real-world systems rely on heuristics or manual review.
-They work for simple cases, but fail when signals conflict or when fraud mimics legitimate behavior.
+In RevLogiXenv, an agent acts as a returns triage specialist. For every item, the agent must decide:
+- **Resell**: At full price or various discount tiers (15%, 30%, 50%).
+- **Refurbish**: Invest in quality restoration for high-value items.
+- **Dispose**: Efficiently handle low-value or severely damaged goods.
+- **Flag Fraud**: Identify adversarial returns without overwhelming the system with false positives.
+- **Inspect**: Spend time and capital to reduce noise and gain higher signal.
+- **Wait**: Manage the flow of delayed resolutions.
 
----
-
-## What This Project Does
-
-RevLogiXenv models returns processing as a **sequential decision problem**.
-
-Instead of predicting a label, an agent must:
-- observe partial, noisy signals
-- choose an operational action
-- handle delayed consequences
-- optimize long-term reward
-
-This turns reverse logistics into a **reinforcement learning environment**, not a classification task.
+### Real-World Uncertainty
+- **Noisy Signals**: Condition scores are imperfect proxies for ground truth.
+- **Adversarial Fraud**: Fraudulent items are designed to mimic high-quality returns.
+- **Delayed Outcomes**: The financial impact of a decision is often only known several steps later.
+- **Operational Costs**: Every action (inspection, flagging, refurbishing) has a tangible cost.
 
 ---
-
-## Why This Matters
-
-This environment captures real operational trade-offs:
-
-- Profit vs fraud risk
-- Speed vs inspection cost
-- False positives vs missed fraud
-- Short-term vs delayed outcomes
-
-It provides a benchmark for evaluating agents that must reason under uncertainty in real-world systems.
-
----
-
-## Key Idea
-
-> Returns processing is not a prediction problem — it is a policy learning problem.
-
----
-
-## What This Repo Provides
-
-- A POMDP-based reverse logistics environment
-- Realistic noise, fraud, and delayed resolution dynamics
-- Deterministic and LLM-based policies
-- Oracle-based scoring for measurable evaluation
-- OpenEnv-compatible server and hackathon-ready inference pipeline
 
 ## Project Structure
 
-- Root: `RevLogiXenv/` (this folder)
-- Package: `RevLogiXenv_v0/` (Python environment + baselines)
-- Spaces: `spaces/` (Hugging Face Space docs/config)
+- `RevLogiXenv_v0/`: Core Python environment package. Includes POMDP dynamics, models, and reference policies.
+- `server/`: FastAPI implementation providing an OpenEnv-compliant API.
+- `inference.py`: Hackathon-compliant inference script for Phase 2 validation.
+- `run_baseline.py`: CLI tool for running deterministic or LLM-based baselines.
+- `openenv.yaml`: Environment manifest including task definitions and scoring formulas.
 
-## How to Run
+---
 
-### 1. Setup
+## Quickstart
 
-```bash
-uv venv
-.venv\\Scripts\\activate
-uv pip install -e .
-```
+### 1. Requirements
 
-### 2. Run the API Server
+This project uses [uv](https://astral.sh/uv/) for high-performance dependency management.
 
 ```bash
-python run_server.py
+# Install uv if you haven't already
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-Useful endpoints:
-- `GET http://127.0.0.1:8000/health`
-- `GET http://127.0.0.1:8000/docs`
-
-### 3. Run the Deterministic Baseline
+### 2. Setup
 
 ```bash
-python run_baseline.py --mode local --tasks easy,medium,hard --seeds 42 --pretty
+# Sync dependencies and create virtual environment
+uv sync
+
+# Configure environment variables
+cp .env.example .env
+# Edit .env and add your HF_TOKEN or OPENAI_API_KEY
 ```
 
-## Benchmark Results
+### 3. Execution
 
-Performance was evaluated across three difficulty tiers comparing heuristic baseline against LLM agents (MiniMax-M2.7, Gemini 2.5 Flash, Gemini 2.5 Pro):
+#### Direct Inference (Hackathon Format)
+The `inference.py` script is optimized for the Meta OpenEnv Hackathon Phase 2 validation. It emits standardized logs to stdout.
 
-### Task Completion (Final Score)
+```bash
+uv run python inference.py
+```
 
-| Difficulty | Heuristic | MiniMax-M2.7 | Gemini 2.5 Flash | Gemini 2.5 Pro |
-|:-----------|:----------|:-------------|:------------------|:----------------|
-| Easy       | 0.946     | 0.770        | 0.876             | **0.959**       |
-| Medium     | 0.690     | 0.536        | 0.842             | **0.931**       |
-| Hard       | 0.395     | 0.359        | 0.621             | **0.783**       |
+#### Running Baselines
+Use the `run_baseline.py` script for local testing and developer iteration.
 
-### Fraud Detection (F1 Score)
+```bash
+# Run local deterministic baseline
+uv run python run_baseline.py --mode local
 
-| Difficulty | Heuristic | MiniMax-M2.7 | Gemini 2.5 Flash | Gemini 2.5 Pro |
-|:-----------|:----------|:-------------|:------------------|:----------------|
-| Easy       | 1.00      | 1.00         | 1.00              | 1.00            |
-| Medium     | 0.706     | 0.00         | 0.857             | **0.923**       |
-| Hard       | 0.545     | 0.00         | 0.800             | **0.923**       |
+# Run LLM-based baseline (requires OpenAI-compatible API)
+uv run python run_baseline.py --mode llm --model gpt-4o-mini
+```
 
-### Economic Efficiency (Hard Tier)
+---
 
-| Model             | Profit    | Efficiency |
-|:------------------|:----------|:-----------|
-| Optimal (Theoretical) | $9,363.39 | 100%       |
-| Gemini 2.5 Pro    | $6,453.76 | 68.9%      |
-| Gemini 2.5 Flash  | $4,697.00 | 50.1%      |
-| Heuristic         | $2,762.76 | 29.5%      |
+## OpenEnv API Contract
 
-### Key Findings
+This environment adheres to the OpenEnv standard. You can interact with it via the local server or the provided `AutonomousReturnsEnv` class.
 
-- **Reasoning Gap**: High-tier reasoning models (Gemini 2.5 Pro) achieve 133% more profit than heuristics in complex environments
-- **Safety Collapse**: MiniMax-M2.7 exhibits "fraud paranoia" in Hard mode, triggering flag_fraud 18x per 50 steps with near-zero rewards
-- **Graceful Degradation**: Gemini models maintain robust F1 > 0.90 under uncertainty; heuristic and MiniMax collapse at higher difficulties
-- **Diagnostic Inefficiency**: Lower-tier models enter inspection loops with diminishing returns rather than committing to decisive actions
+- **Observation Space**: Structured data including `current_item`, `noisy_condition_score`, `customer_profile`, and `running_ledger`.
+- **Action Space**: Discrete actions (`resell_full`, `inspect`, `flag_fraud`, etc.).
+- **Rewards**: Economics-driven rewards shaped strictly to the `(0.01, 0.99)` range.
 
-Full technical analysis: `Technical Inference Analysis inference.md`  
-Full benchmark report: `Technical Submission Baseline Agent.md`
+---
 
-## More Documentation
+## Hackathon Output Format
 
-- Package/API details: `RevLogiXenv_v0/README.md`
+The `inference.py` script outputs the following standardized format for automated validation:
+
+```text
+[START] task=easy env=revlogixenv_v0 model=gpt-4o-mini
+[STEP] step=1 action=inspect reward=0.43 done=false error=null
+...
+[END] success=true steps=20 score=0.717 rewards=0.43,0.50,...
+```
+
+> [!IMPORTANT]
+> To pass Phase 2 validation, all per-step rewards and the final task score are strictly bounded within the open interval (0, 1).
+
+---
+
+## Documentation
+
+- [Technical Details](RevLogiXenv_v0/README.md): Deep dive into environment dynamics and models.
+- [Task Manifest](openenv.yaml): Configuration for easy, medium, and hard tiers.

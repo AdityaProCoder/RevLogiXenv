@@ -27,14 +27,16 @@ class FraudMetrics:
 
 class Grader:
     """
-    Deterministic episode grader.
+    Evaluation utility for RevLogiXenv policies.
+    
+    Computes profit, margins, and fraud metrics (F1) across multiple episodes.
+    Final scores are strictly clamped to the (0.01, 0.99) range to comply
+    with hackathon validation requirements.
 
     Scoring:
     - easy:  final_score = margin_score
     - medium: final_score = margin_score
     - hard: final_score = 0.6 * margin_score + 0.4 * fraud_f1
-
-    All score outputs are clamped to [0.01, 0.99].
     """
     MIN_SCORE = 0.01
     MAX_SCORE = 0.99
@@ -191,6 +193,10 @@ class Grader:
         )
 
     @classmethod
-    def _clamp_score(cls, x: float) -> float:
-        clamped = max(cls.MIN_SCORE, min(cls.MAX_SCORE, float(x)))
+    def _clamp_score(cls, score: float) -> float:
+        """
+        Clamps score strictly to (0.01, 0.99).
+        Ensures derived task scores in validation never hit 0.0 or 1.0.
+        """
+        clamped = max(cls.MIN_SCORE, min(cls.MAX_SCORE, float(score)))
         return round(clamped, cls.SCORE_DECIMALS)

@@ -1,4 +1,19 @@
-"""Hackathon-compliant inference script for RevLogiXenv."""
+"""
+Hackathon-compliant inference script for RevLogiXenv.
+
+Outputs structured stdout logs for Meta OpenEnv Hackathon Phase 2 validation.
+
+Required Environment Variables:
+- API_BASE_URL: OpenAI-compatible endpoint.
+- MODEL_NAME: LLM identifier (e.g., gpt-4o-mini).
+- HF_TOKEN: API key for the LLM.
+- TASKS: Comma-separated list of tasks (easy,medium,hard).
+
+Format:
+[START] task=<task> env=<benchmark> model=<model>
+[STEP]  step=<n> action=<action> reward=<0.00> done=<true|false> error=<msg|null>
+[END]   success=<true|false> steps=<n> score=<0.000> rewards=<r1,r2,...>
+"""
 from __future__ import annotations
 
 import os
@@ -56,7 +71,11 @@ def log_step(step: int, action: str, reward: float, done: bool, error: str | Non
 
 
 def log_end(success: bool, steps: int, score: float, rewards: list[float]) -> None:
-    # Reference format: success lowercase, score 3dp, rewards CSV 2dp.
+    """
+    Final task log. 
+    Required fields: success (bool), steps (int), score (float), rewards (csv).
+    All boolean values must be lowercase 'true'/'false'.
+    """
     rewards_str = ",".join(f"{r:.2f}" for r in rewards)
     print(
         f"[END] success={str(success).lower()} steps={steps} score={score:.3f} rewards={rewards_str}",

@@ -5,7 +5,7 @@ Features:
 - OpenEnv-compatible typed actions (`ReturnsAction`)
 - Robust handling of delayed-reward tail steps (`WAIT`)
 - Reproducible benchmark runner across easy/medium/hard tasks
-- OpenAI model support with env-var credentials
+- OpenAI-compatible model support with environment variable credentials
 """
 
 from __future__ import annotations
