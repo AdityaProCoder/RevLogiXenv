@@ -55,11 +55,13 @@ def log_step(step: int, action: str, reward: float, done: bool, error: str | Non
     )
 
 
-def log_end(success: bool, steps: int, rewards: list[float]) -> None:
-    # Spec: success is lowercase boolean; rewards is CSV with 2 dp; NO score= field.
-    success_str = "true" if success else "false"
+def log_end(success: bool, steps: int, score: float, rewards: list[float]) -> None:
+    # Reference format: success lowercase, score 3dp, rewards CSV 2dp.
     rewards_str = ",".join(f"{r:.2f}" for r in rewards)
-    print(f"[END] success={success_str} steps={steps} rewards={rewards_str}", flush=True)
+    print(
+        f"[END] success={str(success).lower()} steps={steps} score={score:.3f} rewards={rewards_str}",
+        flush=True,
+    )
 
 
 def _clamp_reward(r: float) -> float:
@@ -203,14 +205,15 @@ def run_episode(client: OpenAI, task_name: str) -> tuple[bool, int, list[float]]
             if done:
                 break
 
-        score = (sum(rewards) / len(rewards)) if rewards else _REWARD_MIN
+        score = sum(rewards) / len(rewards) if rewards else 0.0
+        score = max(1e-6, min(score, 1 - 1e-6))  # strictly within (0, 1) — matches reference
         success = score >= SUCCESS_SCORE_THRESHOLD
     finally:
         try:
             env.close()
         except Exception:
             pass
-        log_end(success=success, steps=steps_taken, rewards=rewards)
+        log_end(success=success, steps=steps_taken, score=score, rewards=rewards)
 
     return success, steps_taken, rewards
 

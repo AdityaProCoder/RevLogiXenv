@@ -121,3 +121,8 @@ reward:
   notes:
     - Per-step reward is shaped from raw economics and bounded to [0.01, 0.99].
     - Hard-task final grading combines margin and fraud F1.
+
+scoring:
+  reward_range: [0.01, 0.99]
+  success_threshold: 0.5
+  score_formula: mean(step_rewards)
