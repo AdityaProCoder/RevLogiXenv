@@ -5,7 +5,7 @@ Features:
 - OpenEnv-compatible typed actions (`ReturnsAction`)
 - Robust handling of delayed-reward tail steps (`WAIT`)
 - Reproducible benchmark runner across easy/medium/hard tasks
-- OpenAI/Vertex AI model support with env-var credentials
+- OpenAI model support with env-var credentials
 """
 
 from __future__ import annotations
@@ -14,9 +14,6 @@ import os
 from dataclasses import dataclass
 from importlib import import_module
 from typing import Iterable
-
-from vertexai import init
-from vertexai.generative_models import GenerativeModel, GenerationConfig
 
 from .environment import AutonomousReturnsEnv
 from .grader import Grader
@@ -52,7 +49,7 @@ DISPOSITION VALUE GUIDE:
 - RESELL_DISCOUNT_30: General lightly-used fallback
 - RESELL_DISCOUNT_50: Damaged items, low-value situations
 - REFURBISH: High-price damaged items only ($18 fixed + 15% variable)
-- DISPOSE: Low-price ($<90) damaged items
+- DISPOSE: Low-price (<$90) damaged items
 - FLAG_FRAUD: Only with 3+ fraud signals. Costs $6+$0.03x. Recovers $0.88x if correct
 - INSPECT: Uncertain expensive items ($250+). Reduces noise 14x but costs $5
 
@@ -80,71 +77,37 @@ class BaselineAgent:
         self.provider = self.config.provider.lower()
         self.model = self.config.model
 
-        if self.provider == "openai":
-            try:
-                openai_mod = import_module("openai")
-                OpenAI = getattr(openai_mod, "OpenAI")
-            except Exception as exc:
-                raise ImportError(
-                    "openai package required. Install with: pip install openai"
-                ) from exc
+        if self.provider != "openai":
+            raise ValueError("Only 'openai' provider is supported. Set provider='openai'.")
 
-            api_key = os.environ.get("HF_TOKEN") or os.environ.get("OPENAI_API_KEY")
-            if not api_key:
-                raise ValueError("HF_TOKEN or OPENAI_API_KEY environment variable not set")
-            base_url = os.environ.get("API_BASE_URL") or os.environ.get("OPENAI_API_BASE_URL")
-            self.client = OpenAI(api_key=api_key, base_url=base_url)
-            if not self.model:
-                self.model = os.environ.get("MODEL_NAME", "gpt-4o-mini")
+        try:
+            openai_mod = import_module("openai")
+            OpenAI = getattr(openai_mod, "OpenAI")
+        except Exception as exc:
+            raise ImportError(
+                "openai package required. Install with: pip install openai"
+            ) from exc
 
-        elif self.provider == "google":
-            project_id = os.environ.get("VERTEX_PROJECT_ID")
-            if not project_id:
-                raise ValueError("VERTEX_PROJECT_ID environment variable not set")
-            self._vertex_project = project_id
-            self._vertex_location = os.environ.get("VERTEX_LOCATION", "us-central1")
-            if not self.model:
-                self.model = "gemini-1.5-pro"
-        else:
-            raise ValueError("Unknown provider. Use 'openai' or 'google'.")
+        api_key = os.environ.get("HF_TOKEN") or os.environ.get("OPENAI_API_KEY")
+        if not api_key:
+            raise ValueError("HF_TOKEN or OPENAI_API_KEY environment variable not set")
+        base_url = os.environ.get("API_BASE_URL") or os.environ.get("OPENAI_API_BASE_URL")
+        self.client = OpenAI(api_key=api_key, base_url=base_url)
+        if not self.model:
+            self.model = os.environ.get("MODEL_NAME", "gpt-4o-mini")
 
     def _call_llm(self, prompt: str) -> str:
-        system_msg = LLM_SYSTEM_PROMPT
-
-        if self.provider == "openai":
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": system_msg},
-                    {"role": "user", "content": prompt},
-                ],
-                temperature=self.config.temperature,
-                max_tokens=self.config.max_tokens,
-            )
-            text = response.choices[0].message.content or ""
-            return text.strip()
-
-        init(project=self._vertex_project, location=self._vertex_location)
-        model = GenerativeModel(
-            self.model,
-            system_instruction=[system_msg],
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": LLM_SYSTEM_PROMPT},
+                {"role": "user", "content": prompt},
+            ],
+            temperature=self.config.temperature,
+            max_tokens=self.config.max_tokens,
         )
-        response = model.generate_content(
-            prompt,
-            generation_config=GenerationConfig(
-                max_output_tokens=256,
-                temperature=self.config.temperature,
-            ),
-        )
-        try:
-            text = response.text.strip()
-            if not text:
-                print("WARNING: Empty Gemini response received")
-                return ""
-            return text
-        except Exception as e:
-            print(f"WARNING: Gemini response extraction failed: {e}")
-            return ""
+        text = response.choices[0].message.content or ""
+        return text.strip()
 
     def observation_to_prompt(self, obs: ReturnsObservation) -> str:
         if obs.current_item is None:
@@ -294,6 +257,8 @@ def run_openai_baseline(
 ) -> dict:
     agent = BaselineAgent(BaselineRunConfig(provider="openai", model=model))
     return agent.run_benchmark(seeds=seeds, verbose=verbose)
+
+
 if __name__ == "__main__":
     result = run_openai_baseline(verbose=True)
     print(result)

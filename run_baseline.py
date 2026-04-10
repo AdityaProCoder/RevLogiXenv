@@ -28,13 +28,11 @@ def _parse_int_csv(value: str) -> list[int]:
 
 
 def _auto_detect_provider() -> str:
-    """Auto-detect LLM provider based on available API keys. Priority: openai > google."""
+    """Detect LLM provider from available API keys."""
     if os.getenv("OPENAI_API_KEY") or os.getenv("HF_TOKEN"):
         return "openai"
-    if os.getenv("GEMINI_API_KEY"):
-        return "google"
     raise ValueError(
-        "No LLM API key found. Set OPENAI_API_KEY, HF_TOKEN, or GEMINI_API_KEY in .env"
+        "No LLM API key found. Set OPENAI_API_KEY or HF_TOKEN in .env"
     )
 
 
@@ -60,7 +58,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
             "AutonomousReturns-v0 baseline CLI. "
-            "Supports deterministic local baseline and optional LLM baseline (OpenAI/Google)."
+            "Supports deterministic local baseline and LLM baseline (OpenAI)."
         )
     )
     parser.add_argument(
@@ -81,9 +79,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--provider",
-        choices=("auto", "openai", "google"),
+        choices=("auto", "openai"),
         default="auto",
-        help="LLM provider (used only in --mode llm). Use 'auto' to detect from API keys.",
+        help="LLM provider (used only in --mode llm).",
     )
     parser.add_argument(
         "--model",

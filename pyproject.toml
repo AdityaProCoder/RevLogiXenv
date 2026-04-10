@@ -13,16 +13,13 @@ dependencies = [
     "fastapi>=0.115.0",
     "pydantic>=2.0.0",
     "uvicorn>=0.24.0",
+    "openai>=1.0",
     "numpy>=1.20",
     "requests>=2.31.0",
     "python-dotenv>=1.0.0",
-    "google-cloud-aiplatform>=1.145.0",
 ]
 
 [project.optional-dependencies]
-openai = ["openai>=1.0"]
-vertex = ["google-cloud-aiplatform>=1.145.0"]
-all = ["openai>=1.0", "google-cloud-aiplatform>=1.145.0"]
 dev = [
     "pytest>=8.0.0",
     "pytest-cov>=4.0.0",
