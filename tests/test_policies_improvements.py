@@ -111,3 +111,39 @@ def test_policy_config_inspect_thresholds():
     assert config.inspect_score_low == 5.0
     assert config.inspect_score_high == 7.5
     assert config.inspect_min_price == 250.0
+
+
+def test_heuristic_does_not_repeat_inspect_after_note_update():
+    """
+    After an INSPECT action updates the item's inspection note, the next policy
+    decision for the same item should not INSPECT again.
+    """
+    policy = HeuristicPolicy()
+    env = AutonomousReturnsEnv("hard")
+    obs = env.reset(seed=42)
+
+    inspected_once = False
+    steps = 0
+
+    while not obs.done and steps < 200:
+        action = policy(obs)
+
+        if not inspected_once:
+            if action.action == DispositionAction.INSPECT and obs.current_item is not None:
+                inspected_once = True
+                item_id = obs.current_item.item_id
+                obs = env.step(action)
+                assert obs.current_item is not None
+                assert obs.current_item.item_id == item_id
+                assert obs.current_item.inspection_note is not None
+
+                next_action = policy(obs)
+                assert next_action.action != DispositionAction.INSPECT, (
+                    "Policy repeated INSPECT on same item after inspection note update"
+                )
+                break
+
+        obs = env.step(action)
+        steps += 1
+
+    assert inspected_once, "Did not encounter an INSPECT scenario in hard task"

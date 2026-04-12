@@ -38,11 +38,8 @@ tasks:
     noise_level: hard
     delay_type: variable
     scoring:
-      type: composite
+      type: margin
       range: [0.01, 0.99]
-      weights:
-        margin: 0.6
-        fraud_f1: 0.4
 
   hard:
     description: "Extreme uncertainty + adversarial noise - new extra-hard difficulty"
@@ -125,4 +122,12 @@ reward:
 scoring:
   reward_range: [0.01, 0.99]
   success_threshold: 0.5
+  # Inference-mode score: mean of per-step shaped rewards, clamped to (0.01, 0.99).
+  # The hackathon Phase 2 validator derives the task score from the rewards list
+  # emitted by inference.py, so this must match what inference.py computes.
   score_formula: mean(step_rewards)
+  # Grader-mode score (Python API via Grader class):
+  #   easy/medium: final_score = oracle_margin_score  (oracle-normalized profit)
+  #   hard:        final_score = 0.6 * oracle_margin_score + 0.4 * fraud_f1
+  # These two scoring modes target different use cases (hackathon validation vs
+  # local Python-based evaluation) and are intentionally kept separate.
