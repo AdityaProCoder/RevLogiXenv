@@ -166,6 +166,12 @@ TASK_CONFIG = {
         "noise_level": "extra_hard",
         "delay_type": "variable",
     },
+    "_legacy_easy": {
+        "num_items": 10,
+        "fraud_enabled": False,
+        "noise_level": "easy",
+        "delay_type": "immediate",
+    },
     "_old_easy": {
         "num_items": 20,
         "fraud_enabled": False,
@@ -416,6 +422,26 @@ class AutonomousReturnsEnv(Environment[ReturnsAction, ReturnsObservation, EnvSta
 
     def close(self) -> None:
         return None
+
+    @property
+    def episode_snapshot(self) -> list[EpisodeRecord]:
+        """
+        Read-only snapshot of ground-truth episode data captured at reset time.
+
+        This is used by the Grader and Oracle to evaluate agent performance
+        without relying on private-name access (_episode_snapshot).
+        """
+        return self._episode_snapshot
+
+    @property
+    def full_resolution_history(self) -> list[ResolutionSummary]:
+        """
+        Read-only list of all resolved item summaries across the full episode.
+
+        Unlike ``resolution_history`` which is capped at the last 3 for display,
+        this contains every resolved item and is used by the Grader for fraud metrics.
+        """
+        return self._full_resolution_history
 
     def _set_task(self, task: str) -> None:
         if not isinstance(task, str):

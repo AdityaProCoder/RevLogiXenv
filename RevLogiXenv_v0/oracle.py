@@ -34,7 +34,7 @@ class Oracle:
         self._precompute()
 
     def _build_snapshot(self) -> list[OracleRecord]:
-        raw = getattr(self._env, "_episode_snapshot", None)
+        raw = self._env.episode_snapshot
         if not raw:
             raise ValueError(
                 "Environment snapshot is empty. Reset the environment before creating Oracle."

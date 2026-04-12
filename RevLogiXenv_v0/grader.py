@@ -33,10 +33,17 @@ class Grader:
     Final scores are strictly clamped to the (0.01, 0.99) range to comply
     with hackathon validation requirements.
 
-    Scoring:
-    - easy:  final_score = margin_score
+    Scoring (Grader mode — used by Python API):
+    - easy:  final_score = margin_score  (oracle-normalized profit)
     - medium: final_score = margin_score
-    - hard: final_score = 0.6 * margin_score + 0.4 * fraud_f1
+    - hard:  final_score = 0.6 * margin_score + 0.4 * fraud_f1
+
+    Note: There are TWO independent scoring contexts in RevLogiXenv:
+    1. Inference mode (hackathon Phase 2): score = mean(step_rewards), clamped to (0.01, 0.99).
+       This is what inference.py outputs and is parsed by the hackathon validator.
+    2. Grader mode (local Python evaluation): oracle-margin + fraud-F1 composite, above.
+       This is what the Grader class computes and is used for local policy comparison.
+    The openenv.yaml manifest declares the inference-mode formula (mean step rewards).
     """
     MIN_SCORE = 0.01
     MAX_SCORE = 0.99
@@ -92,12 +99,24 @@ class Grader:
             raise RuntimeError(
                 "Cannot score an incomplete episode. Roll out until observation.done == True."
             )
-        if not getattr(self.env, "_episode_snapshot", None):
+        if not self.env.episode_snapshot:
             raise RuntimeError(
                 "Cannot score episode before reset. Call env.reset(...) and run at least one rollout."
             )
 
     def _compute_scores(self) -> dict:
+        """
+        Compute bounded scores for the current episode.
+
+        Returns a dict with two scoring annotations:
+        - _scoring_mode: always "grader" for this method
+        - _score_formula: human-readable formula string
+
+        The actual final_score value is computed in "grader mode"
+        (oracle-normalized margin, with fraud-F1 composite for hard tasks).
+        This differs from the inference-mode score (mean of clamped step
+        rewards) declared in openenv.yaml and emitted by inference.py.
+        """
         if self.oracle is None:
             raise RuntimeError("Oracle not initialized. Call grade() first.")
 
@@ -128,6 +147,14 @@ class Grader:
                 "f1": fraud.f1,
             },
             "final_score": final_score,
+            # Explicit scoring mode marker so consumers know which formula applies.
+            # Grader mode: oracle-normalized margin + optional fraud F1 composite.
+            "_scoring_mode": "grader",
+            "_score_formula": (
+                "0.6 * margin_score + 0.4 * fraud_f1"
+                if self.task == "hard"
+                else "margin_score"
+            ),
         }
 
     def _compute_fraud_metrics(self) -> FraudMetrics:
@@ -144,10 +171,10 @@ class Grader:
 
         snapshot_by_item = {
             int(record.item_id): record.hidden_condition
-            for record in getattr(self.env, "_episode_snapshot", [])
+            for record in self.env.episode_snapshot
         }
 
-        for resolution in self.env._full_resolution_history:
+        for resolution in self.env.full_resolution_history:
             hidden = snapshot_by_item.get(int(resolution.item_id))
             is_fraud = hidden == Condition.FRAUDULENT
             flagged = resolution.action == DispositionAction.FLAG_FRAUD
