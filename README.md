@@ -1,6 +1,6 @@
 ﻿---
 title: RevLogiXenv
-emoji: ":package:"
+emoji: "📦"
 colorFrom: blue
 colorTo: green
 sdk: docker
