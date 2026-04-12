@@ -60,6 +60,29 @@ Agent receives noisy signals:
 
 Most actions enqueue pending resolutions; reward may appear after task-specific delay.
 
+### Execution State Diagram
+
+```mermaid
+flowchart TB
+    R["reset(seed)"] --> Q["Item queue + episode snapshot"]
+    Q --> O["Observation"]
+    O --> P["Policy / LLM"]
+    P --> A["Action"]
+    A --> S["step(action)"]
+    S --> D["Pending queue resolution"]
+    D --> O
+    D --> G["Grader / Oracle"]
+```
+
+### Reward Interpretation
+
+| Signal | Meaning | Operational Impact |
+|---|---|---|
+| `margin_component` | Economic quality of the step | Tracks profitability contribution |
+| `fraud_component` | Fraud-related value extraction | Tracks detection and recovery quality |
+| `components` | Raw line-item economics | Helps explain why a step scored high or low |
+| `penalties` | Active negative adjustments | Explains invalid, risky, or costly actions |
+
 ## Task Configurations
 
 | Task | Items | Fraud | Noise | Delay |
@@ -78,6 +101,7 @@ Compatibility aliases `_old_medium` and `_old_hard` are also supported.
 
 - Per-step reward is clamped in `[0.01, 0.99]`.
 - Final output includes step logs and final score field.
+- Step logs are meant for validator consumption, not human interpretation alone.
 
 ### Grader Path
 
@@ -94,6 +118,35 @@ Task formulas:
 1. `easy`: margin-based.
 2. `medium`: margin-based.
 3. `hard`: weighted margin + fraud F1.
+4. `_legacy_easy`: compatibility path, same margin-based behavior as the original "easy" variant.
+
+## Benchmark Visual
+
+```mermaid
+flowchart LR
+    H["Heuristic\nStrong on easy\nBreaks under ambiguity"]
+    M["MiniMax-M2.7\nGood completion\nLower reward density"]
+    F["Gemini 2.5 Flash\nBetter recovery\nMid-tier stability"]
+    P["Gemini 2.5 Pro\nBest overall\nHighest score + F1"]
+
+    H --> M --> F --> P
+```
+
+### Reference Snapshot
+
+| Model | Easy | Medium | Hard | Overall |
+|---|---:|---:|---:|---:|
+| Heuristic | 0.946 | 0.690 | 0.395 | 0.677 |
+| MiniMax-M2.7 | 0.770 | 0.536 | 0.359 | 0.555 |
+| Gemini 2.5 Flash | 0.876 | 0.842 | 0.621 | 0.780 |
+| Gemini 2.5 Pro | 0.959 | 0.931 | 0.783 | 0.891 |
+
+### Reading the Benchmark
+
+1. Higher final score is better, but you should always compare it with margin score and fraud F1.
+2. A model can have a decent final score and still be operationally risky if fraud F1 collapses.
+3. Inference behavior is a separate view from grader evaluation, so treat logs and scores as complementary.
+4. The hard tier is the real stress test because it mixes uncertainty, fraud, and delayed outcomes.
 
 ## Public API Surface
 
@@ -128,6 +181,8 @@ print(result["final_score"])
 - Fraud metric edge cases.
 - Policy behavior regressions.
 - Incomplete episode guardrails.
+- Manifest/runtime contract checks.
+- README and documentation clarity for operator onboarding.
 
 ## Related Files
 

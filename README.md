@@ -53,6 +53,86 @@ Known limitations that still exist:
 3. Some historical local test expectations may not reflect current provider constraints.
 4. Full production hardening (telemetry, CI policy gates, strict manifest-runtime lints) is still incremental.
 
+## Benchmark Illustrations
+
+These visuals summarize the two analysis notes you shared:
+
+1. `Technical Inference Analysis inference.md` highlights how a single model's behavior changes as task entropy rises.
+2. `Technical Submission Baseline Agent.md` compares heuristic and LLM baselines across tasks.
+
+### Cross-Tier Reasoning Trend
+
+```mermaid
+flowchart LR
+    Easy["Easy\nFast-path, low entropy\nAvg reward ~0.71"]
+    Medium["Medium\nDiagnostic pivot\nAvg reward ~0.54"]
+    Hard["Hard\nReactive / fragile\nAvg reward ~0.49"]
+
+    Easy --> Medium --> Hard
+```
+
+### Baseline Comparison Snapshot
+
+| Task | Heuristic | MiniMax-M2.7 | Gemini 2.5 Flash | Gemini 2.5 Pro |
+|---|---:|---:|---:|---:|
+| Easy | 0.946 | 0.770 | 0.876 | 0.959 |
+| Medium | 0.690 | 0.536 | 0.842 | 0.931 |
+| Hard | 0.395 | 0.359 | 0.621 | 0.783 |
+| Overall | 0.677 | 0.555 | 0.780 | 0.891 |
+
+### Inference Behavior Snapshot
+
+| Tier | Dominant Pattern | Key Risk |
+|---|---|---|
+| Easy | Fast resale / disposal | Occasional API error recovery gaps |
+| Medium | Diagnostic pivot with fraud checks | False positives and dead steps |
+| Hard | High-frequency fraud flagging | Reward floor hits and diagnostic loops |
+
+### Inference Analysis Summary
+
+| Tier | Total Steps | Avg Reward | Error Recovery | Behavioral Label |
+|---|---:|---:|---:|---|
+| Easy | 22 | 0.71 | 1 wait | Fast-path |
+| Medium | 36 | 0.54 | 2 waits | Diagnostic pivot |
+| Hard | 50 | 0.49 | 2 waits | Reactive / fragmented |
+
+Key takeaways from the inference note:
+
+1. Success on the terminal score does not imply good internal behavior.
+2. Reward density drops as entropy rises, especially in hard mode.
+3. A model can "finish" while still wasting many steps on low-value actions.
+4. Error handling matters because HTTP 500 recovery can create dead steps.
+
+### Submission Benchmark Summary
+
+| Model | Easy | Medium | Hard | Overall |
+|---|---:|---:|---:|---:|
+| Heuristic | 0.946 | 0.690 | 0.395 | 0.677 |
+| MiniMax-M2.7 | 0.770 | 0.536 | 0.359 | 0.555 |
+| Gemini 2.5 Flash | 0.876 | 0.842 | 0.621 | 0.780 |
+| Gemini 2.5 Pro | 0.959 | 0.931 | 0.783 | 0.891 |
+
+What that table means:
+
+1. The heuristic is strong when the environment is predictable, but degrades quickly under uncertainty.
+2. MiniMax completes episodes, but with weaker economic efficiency and more brittle behavior in hard mode.
+3. Gemini 2.5 Flash improves consistency and fraud handling.
+4. Gemini 2.5 Pro is the most balanced option across completion, profit, and fraud detection.
+
+### Architecture Flow
+
+```mermaid
+flowchart LR
+    A["Task config\nopenenv.yaml"] --> B["Environment\nPOMDP + delayed rewards"]
+    B --> C["Observation\ncurrent item + signals"]
+    C --> D["Prompt builder\nprompting.py"]
+    D --> E["LLM / policy"]
+    E --> F["Action"]
+    F --> B
+    B --> G["Inference log\n[START]/[STEP]/[END]"]
+    B --> H["Grader / Oracle\nlocal evaluation"]
+```
+
 ## Detailed Solution Architecture
 
 ### 1) System Layers
@@ -89,6 +169,7 @@ There are two contexts and both are intentional:
 2. Manifest/runtime alignment reduces submission failures.
 3. Explicit grader/oracle contract improves local evaluation trust.
 4. Layered modules make changes safer to test and review.
+5. Documentation now mirrors the actual execution paths, making hackathon validation and local evaluation easier to reason about.
 
 ## Project Structure
 
@@ -237,6 +318,8 @@ uv run pytest -q tests/test_grader_and_baseline.py tests/test_grader_edge_cases.
    - Confirm server is running on port `8000` and port is free.
 4. Baseline provider mismatch tests:
    - Some historical tests may assume unsupported providers.
+5. Hugging Face Space metadata rendering as plain text:
+   - Ensure the README frontmatter has no BOM and uses a real emoji character.
 
 ## Additional Docs
 
