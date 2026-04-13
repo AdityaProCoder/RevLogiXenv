@@ -17,6 +17,8 @@ tags:
 
 RevLogiXenv is an **OpenEnv-compatible benchmark** for reverse-logistics triage. It models return processing as a sequential decision problem with partial observability, fraud risk, delayed outcomes, and economic trade-offs.
 
+Today, reverse logistics teams are forced to balance genuine returns, fraudulent returns, and ambiguous item states that are easy to misclassify. When those signals are wrong, the system loses economic value through unnecessary handling, chargebacks, failed recoveries, and poor disposition choices.
+
 ## The Core Challenge
 
 Reverse logistics is not a simple classification task. The environment stresses five recurring failure modes:
