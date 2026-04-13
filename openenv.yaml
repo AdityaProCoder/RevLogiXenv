@@ -54,16 +54,6 @@ tasks:
         margin: 0.6
         fraud_f1: 0.4
 
-  _legacy_easy:
-    description: "Original easy config (preserved for backward compatibility)"
-    num_items: 10
-    fraud_enabled: false
-    noise_level: easy
-    delay_type: immediate
-    scoring:
-      type: margin
-      range: [0.01, 0.99]
-
 action_space:
   type: structured
   model: ReturnsAction

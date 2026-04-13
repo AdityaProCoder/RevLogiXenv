@@ -36,6 +36,7 @@ RevLogiXenv is designed as a **sequential triage** task and can be viewed as a *
 * Belief state management: agents decide whether additional information is worth the cost of inspection.
 * Temporal credit assignment: rewards can arrive after a delay, so earlier actions must be evaluated in context.
 * Adversarial sensitivity: harder tasks introduce more ambiguous signals and stronger fraud mimicry.
+* Scoring split: the benchmark table below uses the grader-mode score, while `inference.py` emits a separate inference-mode score from step rewards.
 
 ## Project Structure
 
@@ -60,7 +61,7 @@ RevLogiXenv/
 
 ## Benchmark Snapshot
 
-The following table captures the benchmark results included with the project notes.
+The following table captures the benchmark results included with the project notes. MiniMax-M2.7 is intentionally kept as a smaller-model baseline; its lower result is a research finding that heuristic policies can outperform smaller LLMs on this task, while Gemini 2.5 Pro is the stronger featured comparator.
 
 | Task | Heuristic | MiniMax-M2.7 | Gemini 2.5 Flash | Gemini 2.5 Pro |
 |---|---:|---:|---:|---:|

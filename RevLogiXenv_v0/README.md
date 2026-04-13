@@ -69,6 +69,7 @@ Compatibility aliases `_old_easy`, `_old_medium`, and `_old_hard` are also suppo
 - Per-step reward is clamped to `[0.01, 0.99]`.
 - The final output includes step logs and a final score field.
 - Step logs are meant for validator consumption as well as debugging.
+- Inference-mode score and grader-mode score are intentionally different: the first is for hackathon log validation, while the second is for local policy benchmarking.
 
 ### Grader Path
 
